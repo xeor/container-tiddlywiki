@@ -18,9 +18,6 @@ jobs:
       - name: Build image
         run: docker build . --file Containerfile --tag $IMAGE_NAME
 
-      - name: Log into registry
-        run: echo "$CONT_BUILD_TOKEN" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
-
       - name: Set env
         run: echo "VERSION=$(echo ${{ github.ref }} | cut -c 1-6)" >> $GITHUB_ENV
 
@@ -29,7 +26,7 @@ jobs:
         with:
           driver-opts: image=moby/buildkit:master
 
-      - name: Login to the GitHub Container Registry
+      - name: Login to the registry
         uses: docker/login-action@v1
         with:
           registry: ghcr.io
