@@ -1,4 +1,4 @@
-name: Container
+name: Container build
 
 on:
   push:
@@ -18,7 +18,9 @@ jobs:
         run: docker build . --file Containerfile --tag $IMAGE_NAME
 
       - name: Set env
-        run: echo "VERSION=$(echo ${{ github.ref }} | sed -e 's,.*/\(.*\),\1,')" >> $GITHUB_ENV
+        run: |
+          echo "IMAGENAME=$(echo ${{ github.repository }} | sed -r 's/^.*\/(container\-)?//')" >> $GITHUB_ENV
+          echo "VERSION=$(echo ${{ github.ref }} | sed -e 's,.*/\(.*\),\1,')" >> $GITHUB_ENV
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1
@@ -37,11 +39,10 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           push: true
-          context: ./${{ github.workflow }}/
-          file: ./${{ github.workflow }}/Containerfile
+          file: ./Containerfile
           tags: |
-            ghcr.io/${{ github.repository_owner }}/${{ github.workflow }}:latest
-            ghcr.io/${{ github.repository_owner }}/${{ github.workflow }}:$VERSION
+            ghcr.io/${{ github.repository_owner }}/$IMAGENAME:latest
+            ghcr.io/${{ github.repository_owner }}/$IMAGENAME:$VERSION
             
       - name: Image digest
         run: echo ${{ steps.docker_build.outputs.digest }}
