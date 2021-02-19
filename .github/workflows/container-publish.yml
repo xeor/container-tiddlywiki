@@ -5,22 +5,19 @@ on:
     tags:
       - '*'
 
-env:
-  IMAGE_NAME: tiddlywiki
-
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
 
-      - name: Build image
-        run: docker build . --file Containerfile --tag $IMAGE_NAME
-
       - name: Set env
         run: |
-          echo "IMAGENAME=$(echo ${{ github.repository }} | sed -r 's/^.*\/(container\-)?//')" >> $GITHUB_ENV
-          echo "VERSION=$(echo ${{ github.ref }} | sed -e 's,.*/\(.*\),\1,')" >> $GITHUB_ENV
+          echo "image_name=$(echo ${{ github.repository }} | sed -r 's/^.*\/(container\-)?//')" >> $GITHUB_ENV
+          echo "version=$(echo ${{ github.ref }} | sed -e 's,.*/\(.*\),\1,')" >> $GITHUB_ENV
+
+      - name: Build image
+        run: docker build . --file Containerfile --tag ${{ env.image_name }}
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1
@@ -41,8 +38,8 @@ jobs:
           push: true
           file: ./Containerfile
           tags: |
-            ghcr.io/${{ github.repository_owner }}/$IMAGENAME:latest
-            ghcr.io/${{ github.repository_owner }}/$IMAGENAME:$VERSION
+            ghcr.io/${{ github.repository_owner }}/${{ env.image_name }}:latest
+            ghcr.io/${{ github.repository_owner }}/${{ env.image_name }}:${{ env.version }}
             
       - name: Image digest
         run: echo ${{ steps.docker_build.outputs.digest }}
