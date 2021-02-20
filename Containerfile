@@ -1,7 +1,7 @@
 FROM node:alpine
 
-ENV UPDATED=2020-10-05
-ENV TIDDLYWIKI_VERSION=5.1.22
+ENV UPDATED=2021-02-20
+ENV TIDDLYWIKI_VERSION=5.1.23
 
 RUN apk add --no-cache tini git \
     && npm install -g tiddlywiki@${TIDDLYWIKI_VERSION} \
